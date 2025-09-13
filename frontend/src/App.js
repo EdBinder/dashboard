@@ -1,104 +1,78 @@
 import React from "react";
+// Font imports (only required weights to reduce bundle). Adjust as needed.
+import '@fontsource/poppins/300.css';
+import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/500.css';
+import '@fontsource/poppins/600.css';
+import '@fontsource/poppins/700.css';
 import {
   ThemeProvider,
   createTheme,
   CssBaseline,
   Container,
-  Grid,
-  Paper,
   Typography,
   Box,
 } from "@mui/material";
+import GridLayout from './components/GridLayout';
 
-// Create a simple theme
+// Create a simple theme with global Poppins typography
 const theme = createTheme({
   palette: {
-    primary: {
-      main: "#1976d2",
-    },
-    background: {
-      default: "#f5f5f5",
-    },
+    primary: { main: "#1976d2" },
+    background: { default: "#f5f5f5" },
   },
+  typography: {
+    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: { fontWeight: 600 },
+    h2: { fontWeight: 600 },
+    h3: { fontWeight: 600 },
+    h4: { fontWeight: 600 },
+    h5: { fontWeight: 600 },
+    h6: { fontWeight: 600 },
+    button: { textTransform: 'none', fontWeight: 500 },
+  }
 });
+
+// Example layout config for 16x9 grid.
+// Each module defines its position (x,y) and size (w,h) in grid cells.
+const layoutConfig = [
+  { id: 'welcome', x: 0,  y: 0, w: 6, h: 2, title: 'Welcome', component: (
+      <Typography variant="body2" color="text.secondary">
+        Welcome to the Institute Dashboard – prototype 16x9 layout.
+      </Typography>
+    ) },
+  { id: 'summary', x: 6,  y: 0, w: 5, h: 2, title: 'Summary', component: (
+      <Typography variant="caption" color="text.secondary">Add KPIs here.</Typography>
+    ) },
+  { id: 'alerts', x: 11, y: 0, w: 5, h: 2, title: 'Alerts', component: (
+      <Typography variant="caption" color="text.secondary">No alerts.</Typography>
+    ) },
+  { id: 'mainChart', x: 0,  y: 2, w: 10, h: 4, title: 'Main Chart Area', component: (
+      <Box sx={{ height: '100%', display:'flex', alignItems:'center', justifyContent:'center', color:'text.disabled' }}>
+        Chart Placeholder
+      </Box>
+    ) },
+  { id: 'sidePanel', x: 10, y: 2, w: 6, h: 3, title: 'Side Panel', component: (
+      <Typography variant="caption" color="text.secondary">Secondary content.</Typography>
+    ) },
+  { id: 'log', x: 10, y: 5, w: 6, h: 3, title: 'Activity Log', component: (
+      <Typography variant="caption" color="text.secondary">Recent activity will appear here.</Typography>
+    ) },
+  { id: 'footer', x: 0,  y: 6, w: 10, h: 3, title: 'Long Module', component: (
+      <Typography variant="caption" color="text.secondary">Expandable content block.</Typography>
+    ) },
+];
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            gap: 2, 
-            mb: 3 
-          }}
-        >
-          <img
-            src="/IIIUS_logo.png"
-            alt="IIIUS Logo"
-            style={{ height: "100px", width: "auto" }}
-          />
-          <Typography variant="h3" component="h1">
-            Dashboard
-          </Typography>
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <img src="/IIIUS_logo.png" alt="IIIUS Logo" style={{ height: 100, width: 'auto' }} />
+          <Typography variant="h4" component="h1">Dashboard</Typography>
         </Box>
-
-        {/* Main Grid Layout */}
-        <Grid container spacing={3}>
-          {/* Header Row */}
-          <Grid item xs={12}>
-            <Paper sx={{ p: 2 }}>
-              <></>
-              <Typography variant="h5">
-                Welcome to the Institute Dashboard
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                This is a grid-based modular dashboard
-              </Typography>
-            </Paper>
-          </Grid>
-
-          {/* First Row - 3 equal columns */}
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, height: 200 }}>
-              <Typography variant="h6">Module Slot 1</Typography>
-             
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, height: 200 }}>
-              <Typography variant="h6">Module Slot 2</Typography>
-              
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, height: 200 }}>
-              <Typography variant="h6">Module Slot 3</Typography>
-             
-            </Paper>
-          </Grid>
-
-          {/* Second Row - 2 columns */}
-          <Grid item xs={12} md={8}>
-            <Paper sx={{ p: 2, height: 300 }}>
-              <Typography variant="h6">Large Module Slot</Typography>
-              
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, height: 300 }}>
-              <Typography variant="h6">Side Module</Typography>
-              
-            </Paper>
-          </Grid>
-        </Grid>
+  <GridLayout layout={layoutConfig} gap={4} />
       </Container>
     </ThemeProvider>
   );
