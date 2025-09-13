@@ -14,6 +14,7 @@ import {
   Box,
 } from "@mui/material";
 import GridLayout from './components/GridLayout';
+import Antraege from './components/Antraege';
 
 // Create a simple theme with global Poppins typography
 const theme = createTheme({
@@ -36,31 +37,20 @@ const theme = createTheme({
 // Example layout config for 16x9 grid.
 // Each module defines its position (x,y) and size (w,h) in grid cells.
 const layoutConfig = [
-  { id: 'welcome', x: 0,  y: 0, w: 6, h: 2, title: 'Welcome', component: (
+  { id: 'welcome', x: 0,  y: 0, w: 4, h: 2, title: 'Welcome', component: (
       <Typography variant="body2" color="text.secondary">
         Welcome to the Institute Dashboard – prototype 16x9 layout.
       </Typography>
     ) },
-  { id: 'summary', x: 6,  y: 0, w: 5, h: 2, title: 'Summary', component: (
-      <Typography variant="caption" color="text.secondary">Add KPIs here.</Typography>
+  { id: 'testBlock1', x: 4,  y: 0, w: 4, h: 2, title: 'testBlock1', component: (
+      <Typography variant="caption" color="text.secondary">add content here</Typography>
     ) },
-  { id: 'alerts', x: 11, y: 0, w: 5, h: 2, title: 'Alerts', component: (
-      <Typography variant="caption" color="text.secondary">No alerts.</Typography>
+  { id: 'testBlock2', x: 8, y: 0, w: 8, h: 2, title: 'testBlock2', component: (
+      <Typography variant="caption" color="text.secondary">add even more content here</Typography>
     ) },
-  { id: 'mainChart', x: 0,  y: 2, w: 10, h: 4, title: 'Main Chart Area', component: (
-      <Box sx={{ height: '100%', display:'flex', alignItems:'center', justifyContent:'center', color:'text.disabled' }}>
-        Chart Placeholder
-      </Box>
-    ) },
-  { id: 'sidePanel', x: 10, y: 2, w: 6, h: 3, title: 'Side Panel', component: (
-      <Typography variant="caption" color="text.secondary">Secondary content.</Typography>
-    ) },
-  { id: 'log', x: 10, y: 5, w: 6, h: 3, title: 'Activity Log', component: (
-      <Typography variant="caption" color="text.secondary">Recent activity will appear here.</Typography>
-    ) },
-  { id: 'footer', x: 0,  y: 6, w: 10, h: 3, title: 'Long Module', component: (
-      <Typography variant="caption" color="text.secondary">Expandable content block.</Typography>
-    ) },
+  { id: 'antraege', x: 0, y: 2, w: 16, h: 6, title: 'Anträge', component: <Antraege /> },
+
+  
 ];
 
 function App() {
@@ -71,7 +61,7 @@ function App() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <img src="/IIIUS_logo.png" alt="IIIUS Logo" style={{ height: 100, width: 'auto' }} />
           <Typography variant="h4" component="h1">Dashboard</Typography>
-        </Box>
+        </Box>                                      
   <GridLayout layout={layoutConfig} gap={4} />
       </Container>
     </ThemeProvider>
