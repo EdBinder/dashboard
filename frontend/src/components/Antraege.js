@@ -229,7 +229,7 @@ export default function Antraege() {
               <col style={{ width: '5%' }} /> {/* Priorität */}
               <col style={{ width: '47%' }} /> {/* Ausschreibung */}
               <col style={{ width: '10%' }} /> {/* Fördervolumen */}
-              <col style={{ width: '12%' }} /> {/* Deadline - smaller as requested */}
+              <col style={{ width: '12%' }} /> {/* Deadline */}
               <col style={{ width: '21%' }} /> {/* Themen */}
             </colgroup>
             <TableHead>
