@@ -11,67 +11,24 @@ import {
   Tooltip,
   Stack,
   Divider,
-  Grid
+  Grid,
+  Paper
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import LocalDiningIcon from '@mui/icons-material/LocalDining';
 import NatureIcon from '@mui/icons-material/Nature';
 
-const MENSA_API_URL = 'https://www.swfr.de/apispeiseplan?&type=98&tx_speiseplan_pi1%5BapiKey%5D=' + process.env.REACT_APP_SWFR_API_KEY + '&tx_speiseplan_pi1%5Btage%5D=1&tx_speiseplan_pi1%5Bort%5D=610';
+const API_BASE_URL = 'http://localhost:8000/api';
 const REFRESH_INTERVAL = 120000; // 120 seconds
 
 export default function Mensa() {
-  const [menuData, setMenuData] = useState([]);
+  const [menuData, setMenuData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  // Parse XML response to extract menu data
-  const parseMenuData = (xmlText) => {
-    try {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-      
-      const mensaName = xmlDoc.querySelector('mensa')?.textContent || 'Mensa Rempartstraße';
-      const datum = xmlDoc.querySelector('tagesplan')?.getAttribute('datum') || new Date().toLocaleDateString('de-DE');
-      
-      const menues = Array.from(xmlDoc.querySelectorAll('menue')).map(menue => {
-        const name = menue.querySelector('name')?.textContent || '';
-        const art = menue.getAttribute('art') || '';
-        const zusatz = menue.getAttribute('zusatz') || '';
-        const allergene = menue.querySelector('allergene')?.textContent || '';
-        const kennzeichnungen = menue.querySelector('kennzeichnungen')?.textContent || '';
-        
-        const preise = {
-          studierende: menue.querySelector('preis studierende')?.textContent || '',
-          angestellte: menue.querySelector('preis angestellte')?.textContent || '',
-          gaeste: menue.querySelector('preis gaeste')?.textContent || '',
-          schueler: menue.querySelector('preis schueler')?.textContent || ''
-        };
-
-        return {
-          art,
-          name: name.replace(/Ã¤/g, 'ä').replace(/Ã¼/g, 'ü').replace(/Ã¶/g, 'ö').replace(/ÃŸ/g, 'ß').replace(/Ã€/g, 'Ä').replace(/Ã‡/g, 'Ü').replace(/Ã–/g, 'Ö'),
-          zusatz,
-          allergene,
-          kennzeichnungen,
-          preise
-        };
-      });
-
-      return {
-        mensaName: mensaName.replace(/Ã¤/g, 'ä').replace(/Ã¼/g, 'ü').replace(/Ã¶/g, 'ö').replace(/ÃŸ/g, 'ß'),
-        datum,
-        menues
-      };
-    } catch (err) {
-      console.error('Error parsing XML:', err);
-      throw new Error('Fehler beim Verarbeiten der Speiseplan-Daten');
-    }
-  };
-
-  // Fetch menu data from Mensa API
+  // Fetch menu data from Laravel backend
   const fetchMenuData = useCallback(async (showLoadingSpinner = true) => {
     try {
       if (showLoadingSpinner) {
@@ -79,10 +36,10 @@ export default function Mensa() {
       }
       setError(null);
 
-      const response = await fetch(MENSA_API_URL, {
+      const response = await fetch(`${API_BASE_URL}/mensa`, {
         method: 'GET',
         headers: {
-          'Accept': 'application/xml, text/xml, */*',
+          'Content-Type': 'application/json',
         },
       });
 
@@ -90,10 +47,13 @@ export default function Mensa() {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const xmlText = await response.text();
-      const parsedData = parseMenuData(xmlText);
+      const result = await response.json();
       
-      setMenuData(parsedData);
+      if (!result.success) {
+        throw new Error(result.error || 'Fehler beim Laden des Speiseplans');
+      }
+      
+      setMenuData(result.data);
       setLastUpdated(new Date());
       setError(null);
     } catch (err) {
@@ -146,7 +106,14 @@ export default function Mensa() {
     return 'default';
   };
 
-  if (loading && !menuData.menues?.length) {
+  // Get day label
+  const getDayLabel = (day) => {
+    if (day.is_today) return 'Heute';
+    if (day.is_tomorrow) return 'Morgen';
+    return day.weekday;
+  };
+
+  if (loading && !menuData) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <CircularProgress />
@@ -154,7 +121,7 @@ export default function Mensa() {
     );
   }
 
-  if (error && !menuData.menues?.length) {
+  if (error && !menuData) {
     return (
       <Alert severity="error" sx={{ mt: 2 }}>
         {error}
@@ -169,7 +136,7 @@ export default function Mensa() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <RestaurantIcon color="primary" />
           <Typography variant="h6" component="h2">
-            {menuData.mensaName || 'Mensa Speiseplan'}
+            {menuData?.mensa_name || 'Mensa Speiseplan'}
           </Typography>
         </Box>
         
@@ -194,18 +161,6 @@ export default function Mensa() {
         </Box>
       </Box>
 
-      {/* Date */}
-      {menuData.datum && (
-        <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
-          {new Date(menuData.datum.split('.').reverse().join('-')).toLocaleDateString('de-DE', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </Typography>
-      )}
-
       {/* Error Alert */}
       {error && (
         <Alert severity="warning" sx={{ mb: 2 }}>
@@ -213,72 +168,99 @@ export default function Mensa() {
         </Alert>
       )}
 
-      {/* Menu Items */}
-      <Grid container spacing={2}>
-        {menuData.menues?.length > 0 ? (
-          menuData.menues.map((menue, index) => (
-            <Grid item xs={12} md={6} key={index}>
-              <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
-                    {getMenuIcon(menue.art, menue.zusatz)}
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="subtitle2" color="primary" gutterBottom>
-                        {menue.art}
-                      </Typography>
-                      {menue.zusatz && (
-                        <Chip
-                          label={menue.zusatz}
-                          size="small"
-                          color={getMenuChipColor(menue.zusatz)}
-                          sx={{ mb: 1 }}
-                        />
-                      )}
-                    </Box>
-                  </Box>
+      {/* Days */}
+      {menuData?.days?.length > 0 ? (
+        <Stack spacing={3}>
+          {menuData.days.map((day, dayIndex) => (
+            <Box key={dayIndex}>
+              {/* Day Header */}
+              <Paper sx={{ p: 2, mb: 2, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
+                <Typography variant="h6" component="h3">
+                  {getDayLabel(day)} - {day.weekday}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {new Date(day.datum_formatted).toLocaleDateString('de-DE', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </Typography>
+              </Paper>
 
-                  <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.4 }}>
-                    {menue.name}
-                  </Typography>
+              {/* Menu Items for this day */}
+              <Grid container spacing={2}>
+                {day.menues?.length > 0 ? (
+                  day.menues.map((menue, menueIndex) => (
+                    <Grid item xs={12} md={6} key={menueIndex}>
+                      <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
+                            {getMenuIcon(menue.art, menue.zusatz)}
+                            <Box sx={{ flex: 1 }}>
+                              <Typography variant="subtitle2" color="primary" gutterBottom>
+                                {menue.art}
+                              </Typography>
+                              {menue.zusatz && (
+                                <Chip
+                                  label={menue.zusatz}
+                                  size="small"
+                                  color={getMenuChipColor(menue.zusatz)}
+                                  sx={{ mb: 1 }}
+                                />
+                              )}
+                            </Box>
+                          </Box>
 
-                  {/* Prices */}
-                  <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      Studierende: <strong>{menue.preise.studierende}</strong>
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Angestellte: <strong>{menue.preise.angestellte}</strong>
-                    </Typography>
-                  </Stack>
+                          <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.4 }}>
+                            {menue.name}
+                          </Typography>
 
-                  {/* Allergenes and additives */}
-                  {(menue.allergene || menue.kennzeichnungen) && (
-                    <>
-                      <Divider sx={{ my: 1 }} />
-                      {menue.allergene && (
-                        <Typography variant="caption" color="text.secondary" display="block">
-                          <strong>Allergene:</strong> {menue.allergene}
-                        </Typography>
-                      )}
-                      {menue.kennzeichnungen && (
-                        <Typography variant="caption" color="text.secondary" display="block">
-                          <strong>Zusatzstoffe:</strong> {menue.kennzeichnungen}
-                        </Typography>
-                      )}
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          ))
-        ) : (
-          <Grid item xs={12}>
-            <Alert severity="info">
-              Keine Speiseplan-Daten verfügbar.
-            </Alert>
-          </Grid>
-        )}
-      </Grid>
+                          {/* Prices */}
+                          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                            <Typography variant="caption" color="text.secondary">
+                              Studierende: <strong>{menue.preise.studierende}</strong>
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              Angestellte: <strong>{menue.preise.angestellte}</strong>
+                            </Typography>
+                          </Stack>
+
+                          {/* Allergenes and additives */}
+                          {(menue.allergene || menue.kennzeichnungen) && (
+                            <>
+                              <Divider sx={{ my: 1 }} />
+                              {menue.allergene && (
+                                <Typography variant="caption" color="text.secondary" display="block">
+                                  <strong>Allergene:</strong> {menue.allergene}
+                                </Typography>
+                              )}
+                              {menue.kennzeichnungen && (
+                                <Typography variant="caption" color="text.secondary" display="block">
+                                  <strong>Zusatzstoffe:</strong> {menue.kennzeichnungen}
+                                </Typography>
+                              )}
+                            </>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))
+                ) : (
+                  <Grid item xs={12}>
+                    <Alert severity="info">
+                      Keine Speisen für {getDayLabel(day)} verfügbar.
+                    </Alert>
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+          ))}
+        </Stack>
+      ) : (
+        <Alert severity="info">
+          Keine Speiseplan-Daten verfügbar.
+        </Alert>
+      )}
     </Box>
   );
 }
