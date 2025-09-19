@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\MensaService;
+
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class MensaController extends Controller
      *
      * @return JsonResponse
      */
-    public function getMenuData(): JsonResponse
+    public function index(): JsonResponse
     {
         try {
             $data = $this->mensaService->getMenuData();

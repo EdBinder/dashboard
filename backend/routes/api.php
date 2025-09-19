@@ -23,5 +23,5 @@ Route::get('/proposals', [FileParserController::class, 'parse']);
 Route::get('/parser/health', [FileParserController::class, 'health']);
 
 // Mensa endpoints
-Route::get('/mensa', [MensaController::class, 'getMenuData']);
+Route::get('/mensa', [MensaController::class, 'index']);
 

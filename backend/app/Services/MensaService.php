@@ -14,7 +14,7 @@ class MensaService
 {
     private const MENSA_API_URL = 'https://www.swfr.de/apispeiseplan';
     private const API_KEY = '8ef06924023391f3955f8af734df917a';
-    private const ORT_ID = '610'; // Mensa Rempartstraße
+    private const ORT_ID = '641'; // Mensa Rempartstraße
 
     /**
      * Fetch and parse menu data for current day and next day
