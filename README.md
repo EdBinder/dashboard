@@ -286,27 +286,9 @@ dashboard/
 4. **Push to branch** (`git push origin feature/amazing-feature`)
 5. **Open Pull Request**
 
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 ## 📞 Support
 
 For support and questions:
 - **Issues**: [GitHub Issues](https://github.com/EdBinder/dashboard/issues)
-- **Email**: Contact the development team
-- **Documentation**: Check the inline code documentation
-
-## 🎯 Roadmap
-
-- [ ] User authentication and role management
-- [ ] Additional dashboard modules (weather, news, etc.)
-- [ ] Mobile-responsive design improvements
-- [ ] Real-time notifications system
-- [ ] Advanced caching mechanisms
-- [ ] Multi-language support
-- [ ] Custom theming options
-
----
 
 **Built with ❤️ for IIIUS**
