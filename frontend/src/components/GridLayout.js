@@ -29,11 +29,15 @@ export default function GridLayout({ layout = [], gap = 8 }) {
       sx={{
         position: 'relative',
         display: 'grid',
-        width: '100%',
+        width: '98%',
+        height: '95%',
+        maxWidth: '100%',
+        maxHeight: '100%',
         aspectRatio: '16 / 9',
         gridTemplateColumns: 'repeat(16, 1fr)',
         gridTemplateRows: 'repeat(9, 1fr)',
         gap: gap,
+        boxSizing: 'border-box'
       }}
     >
       {valid.map(m => (

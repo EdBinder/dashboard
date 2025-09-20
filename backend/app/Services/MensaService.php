@@ -12,27 +12,39 @@ use DOMXPath;
 
 class MensaService
 {
-    private const MENSA_API_URL = 'https://www.swfr.de/apispeiseplan';
-    private const API_KEY = '8ef06924023391f3955f8af734df917a';
-    private const ORT_ID = '641'; // Mensa Rempartstraße
+    private $mensaUrl;
+    private $apiKey;
+    private $locId;
+  
 
-    /**
-     * Fetch and parse menu data for current day and next day
-     *
-     * @return array
-     * @throws Exception
-     */
-    public function getMenuData(): array
+    private GoogleImagesService $googleImagesService;
+
+    public function __construct(GoogleImagesService $googleImagesService)
+    {
+        $this->mensaUrl = env('MENSA_API_URL');
+        $this->apiKey = env('API_KEY');
+        $this->locId = env('ORT_ID');
+        $this->googleImagesService = $googleImagesService;
+    }
+
+
+    public function getMenuData(bool $includeImages = false): array
     {
         try {
             $xmlData = $this->fetchMenuXml();
             $parsedData = $this->parseMenuXml($xmlData);
             $filteredData = $this->filterRelevantDays($parsedData);
             
+            // Add images if requested
+            if ($includeImages) {
+                $filteredData = $this->addImagesToMenuData($filteredData);
+            }
+            
             return [
                 'success' => true,
                 'data' => $filteredData,
-                'last_updated' => now()->toISOString()
+                'last_updated' => now()->toISOString(),
+                'images_included' => $includeImages
             ];
         } catch (Exception $e) {
             Log::error('MensaService error: ' . $e->getMessage());
@@ -48,11 +60,19 @@ class MensaService
      */
     private function fetchMenuXml(): string
     {
-        $url = self::MENSA_API_URL . '?' . http_build_query([
+        $url = $this->mensaUrl . '?' . http_build_query([
             'type' => '98',
-            'tx_speiseplan_pi1[apiKey]' => self::API_KEY,
+            'tx_speiseplan_pi1[apiKey]' => $this->apiKey,
             'tx_speiseplan_pi1[tage]' => '7', // Get full week as API doesn't respect this parameter anyway
-            'tx_speiseplan_pi1[ort]' => self::ORT_ID
+            'tx_speiseplan_pi1[ort]' => $this->locId
+        ]);
+
+        // Debug logging
+        Log::info('MensaService Debug Info', [
+            'mensa_url' => $this->mensaUrl,
+            'api_key' => $this->apiKey,
+            'loc_id' => $this->locId,
+            'full_url' => $url
         ]);
 
         $response = Http::withOptions([
@@ -66,6 +86,12 @@ class MensaService
 
         $xmlContent = $response->body();
         
+        // Log response snippet for debugging
+        Log::info('Mensa API Response Snippet', [
+            'response_length' => strlen($xmlContent),
+            'response_preview' => substr($xmlContent, 0, 500)
+        ]);
+        
         if (empty($xmlContent)) {
             throw new Exception('Empty response from Mensa API');
         }
@@ -73,13 +99,6 @@ class MensaService
         return $xmlContent;
     }
 
-    /**
-     * Parse XML data into structured array
-     *
-     * @param string $xmlData
-     * @return array
-     * @throws Exception
-     */
     private function parseMenuXml(string $xmlData): array
     {
         try {
@@ -265,6 +284,48 @@ class MensaService
             return $date && $date->format('Y-m-d') === $tomorrow->format('Y-m-d');
         } catch (Exception $e) {
             return false;
+        }
+    }
+
+    /**
+     * Add food images to menu data using GoogleImagesService
+     *
+     * @param array $menuData
+     * @return array
+     */
+    private function addImagesToMenuData(array $menuData): array
+    {
+        try {
+            // Collect all unique food names
+            $foodNames = [];
+            foreach ($menuData['days'] as $day) {
+                foreach ($day['menues'] as $menu) {
+                    $foodName = trim($menu['name']);
+                    if (!empty($foodName) && !in_array($foodName, $foodNames)) {
+                        $foodNames[] = $foodName;
+                    }
+                }
+            }
+
+            // Search for images for all unique food names
+            $foodImages = $this->googleImagesService->searchMultipleFoodImages($foodNames);
+
+            // Add images to menu items
+            foreach ($menuData['days'] as &$day) {
+                foreach ($day['menues'] as &$menu) {
+                    $foodName = trim($menu['name']);
+                    $menu['image'] = $foodImages[$foodName] ?? null;
+                }
+            }
+
+            return $menuData;
+        } catch (Exception $e) {
+            Log::warning('Failed to add images to menu data', [
+                'error' => $e->getMessage()
+            ]);
+            
+            // Return original data without images if image service fails
+            return $menuData;
         }
     }
 }

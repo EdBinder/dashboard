@@ -34,7 +34,7 @@ export default function Mensa() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/mensa`, {
+      const response = await fetch(`${API_BASE_URL}/mensa/with-images`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -194,10 +194,10 @@ export default function Mensa() {
         </IconButton>
       </Box>
 
-      {/* Content - Split into two halves */}
+      {/* Content - Today gets 3/4, Tomorrow gets 1/4 */}
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-        {/* Left Half - Today */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${theme.palette.divider}`, minHeight: 0 }}>
+        {/* Left Side - Today (3/4 width) */}
+        <Box sx={{ flex: 3, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${theme.palette.divider}`, minHeight: 0 }}>
           {/* Today Header */}
           <Box sx={{ 
             p: 1.4, 
@@ -210,7 +210,7 @@ export default function Mensa() {
             </Typography>
           </Box>
           
-          {/* Today Menu List */}
+          {/* Today Menu List with Images */}
           <Box sx={{ flex: 1, overflow: 'auto', p: 1, minHeight: 0 }}>
             {todayMenus.length > 0 ? (
               <List dense sx={{ py: 0, height: '100%' }}>
@@ -228,61 +228,135 @@ export default function Mensa() {
                           transition: 'all 0.2s ease',
                           '&:hover': {
                             transform: 'translateY(-1px)',
-                            boxShadow: theme.shadows[1]
+                            boxShadow: theme.shadows[2]
                           }
                         }}
                       >
                         <CardContent sx={{ p: 1.4, '&:last-child': { pb: 1.4 } }}>
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.2 }}>
-                            <Box sx={{ position: 'relative' }}>
-                              <Box sx={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                width: 28,
-                                height: 28,
-                                borderRadius: '50%',
-                                backgroundColor: theme.palette.background.paper,
-                                boxShadow: theme.shadows[1],
-                                flexShrink: 0
-                              }}>
-                                {React.cloneElement(typeInfo.icon, { sx: { fontSize: '0.9rem' } })}
-                              </Box>
-                              {typeInfo.isVegetarian && (
+                          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                            {/* Food Image */}
+                            <Box sx={{ flexShrink: 0 }}>
+                              {menue.image?.url ? (
                                 <Box sx={{ 
-                                  position: 'absolute',
-                                  bottom: -4,
-                                  right: -4,
+                                  width: 80,
+                                  height: 80,
+                                  borderRadius: 2,
+                                  overflow: 'hidden',
+                                  border: `2px solid ${theme.palette.divider}`,
+                                  position: 'relative',
+                                  background: theme.palette.grey[100]
+                                }}>
+                                  <img 
+                                    src={menue.image.url}
+                                    alt={menue.name}
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover',
+                                      transition: 'transform 0.2s ease'
+                                    }}
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                  />
+                                  <Box sx={{
+                                    display: 'none',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: theme.palette.grey[200]
+                                  }}>
+                                    <RestaurantIcon sx={{ fontSize: '2rem', color: theme.palette.grey[400] }} />
+                                  </Box>
+                                </Box>
+                              ) : (
+                                <Box sx={{ 
+                                  width: 80,
+                                  height: 80,
+                                  borderRadius: 2,
+                                  border: `2px solid ${theme.palette.divider}`,
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  width: 16,
-                                  height: 16,
-                                  borderRadius: '50%',
-                                  backgroundColor: theme.palette.success.main,
-                                  boxShadow: theme.shadows[1]
+                                  backgroundColor: theme.palette.grey[200]
                                 }}>
-                                  <NatureIcon sx={{ fontSize: '0.6rem', color: 'white' }} />
+                                  <RestaurantIcon sx={{ fontSize: '2rem', color: theme.palette.grey[400] }} />
                                 </Box>
                               )}
                             </Box>
-                            <Box sx={{ flex: 1, minWidth: 0 }}>
-                              <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                  fontWeight: 600, 
-                                  fontSize: '0.9rem', 
-                                  lineHeight: 1.3,
-                                  mb: 0.5,
-                                  color: theme.palette.text.primary,
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 3,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden'
-                                }}
-                              >
-                                {menue.name}
-                              </Typography>
+
+                            {/* Menu Info */}
+                            <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                <Box sx={{ position: 'relative' }}>
+                                  <Box sx={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    width: 28,
+                                    height: 28,
+                                    borderRadius: '50%',
+                                    backgroundColor: theme.palette.background.paper,
+                                    boxShadow: theme.shadows[1],
+                                    flexShrink: 0
+                                  }}>
+                                    {React.cloneElement(typeInfo.icon, { sx: { fontSize: '0.9rem' } })}
+                                  </Box>
+                                  {typeInfo.isVegetarian && (
+                                    <Box sx={{ 
+                                      position: 'absolute',
+                                      bottom: -4,
+                                      right: -4,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      width: 16,
+                                      height: 16,
+                                      borderRadius: '50%',
+                                      backgroundColor: theme.palette.success.main,
+                                      boxShadow: theme.shadows[1]
+                                    }}>
+                                      <NatureIcon sx={{ fontSize: '0.6rem', color: 'white' }} />
+                                    </Box>
+                                  )}
+                                </Box>
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                  <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                      fontWeight: 600, 
+                                      fontSize: '0.95rem', 
+                                      lineHeight: 1.4,
+                                      color: theme.palette.text.primary,
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 3,
+                                      WebkitBoxOrient: 'vertical',
+                                      overflow: 'hidden'
+                                    }}
+                                  >
+                                    {menue.name}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              
+                              {/* Additional info like allergens could go here */}
+                              {menue.allergene && (
+                                <Typography 
+                                  variant="caption" 
+                                  sx={{ 
+                                    color: theme.palette.text.secondary,
+                                    fontSize: '0.7rem',
+                                    fontStyle: 'italic'
+                                  }}
+                                >
+                                  {menue.allergene}
+                                </Typography>
+                              )}
                             </Box>
                           </Box>
                         </CardContent>
@@ -309,35 +383,35 @@ export default function Mensa() {
           </Box>
         </Box>
 
-        {/* Right Half - Tomorrow */}
+        {/* Right Side - Tomorrow (1/4 width, compact) */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           {/* Tomorrow Header */}
           <Box sx={{ 
-            p: 1.4, 
+            p: 1.65, 
             backgroundColor: theme.palette.secondary.light + '20',
             borderBottom: `1px solid ${theme.palette.divider}`,
             flexShrink: 0
           }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: theme.palette.secondary.main, fontSize: '1rem' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: theme.palette.secondary.main, fontSize: '0.85rem' }}>
               {getDayLabel(tomorrowData) || 'Morgen'}
             </Typography>
           </Box>
           
-          {/* Tomorrow Menu List */}
-          <Box sx={{ flex: 1, overflow: 'auto', p: 1, minHeight: 0 }}>
+          {/* Tomorrow Menu List (Compact) */}
+          <Box sx={{ flex: 1, overflow: 'auto', p: 0.5, minHeight: 0 }}>
             {tomorrowMenus.length > 0 ? (
               <List dense sx={{ py: 0, height: '100%' }}>
                 {tomorrowMenus.map((menue, index) => {
                   const typeInfo = getMenuTypeInfo(menue.zusatz);
                   return (
-                    <ListItem key={index} sx={{ px: 0, py: 0.5, display: 'block' }}>
+                    <ListItem key={index} sx={{ px: 0, py: 0.3, display: 'block' }}>
                       <Card 
                         elevation={0}
                         sx={{ 
                           width: '100%',
                           backgroundColor: typeInfo.bgColor,
                           border: `1px solid ${theme.palette.divider}`,
-                          borderRadius: 1.5,
+                          borderRadius: 1,
                           transition: 'all 0.2s ease',
                           '&:hover': {
                             transform: 'translateY(-1px)',
@@ -345,51 +419,31 @@ export default function Mensa() {
                           }
                         }}
                       >
-                        <CardContent sx={{ p: 1.4, '&:last-child': { pb: 1.4 } }}>
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.2 }}>
-                            <Box sx={{ position: 'relative' }}>
-                              <Box sx={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                width: 28,
-                                height: 28,
-                                borderRadius: '50%',
-                                backgroundColor: theme.palette.background.paper,
-                                boxShadow: theme.shadows[1],
-                                flexShrink: 0
-                              }}>
-                                {React.cloneElement(typeInfo.icon, { sx: { fontSize: '0.9rem' } })}
-                              </Box>
-                              {typeInfo.isVegetarian && (
-                                <Box sx={{ 
-                                  position: 'absolute',
-                                  bottom: -4,
-                                  right: -4,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  width: 16,
-                                  height: 16,
-                                  borderRadius: '50%',
-                                  backgroundColor: theme.palette.success.main,
-                                  boxShadow: theme.shadows[1]
-                                }}>
-                                  <NatureIcon sx={{ fontSize: '0.6rem', color: 'white' }} />
-                                </Box>
-                              )}
+                        <CardContent sx={{ p: 0.8, '&:last-child': { pb: 0.8 } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                            <Box sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              backgroundColor: theme.palette.background.paper,
+                              boxShadow: theme.shadows[1],
+                              flexShrink: 0
+                            }}>
+                              {React.cloneElement(typeInfo.icon, { sx: { fontSize: '0.7rem' } })}
                             </Box>
                             <Box sx={{ flex: 1, minWidth: 0 }}>
                               <Typography 
                                 variant="body2" 
                                 sx={{ 
-                                  fontWeight: 600, 
-                                  fontSize: '0.9rem', 
-                                  lineHeight: 1.3,
-                                  mb: 0.5,
+                                  fontWeight: 500, 
+                                  fontSize: '0.75rem', 
+                                  lineHeight: 1.2,
                                   color: theme.palette.text.primary,
                                   display: '-webkit-box',
-                                  WebkitLineClamp: 3,
+                                  WebkitLineClamp: 2,
                                   WebkitBoxOrient: 'vertical',
                                   overflow: 'hidden'
                                 }}
@@ -413,12 +467,12 @@ export default function Mensa() {
                 height: '100%',
                 textAlign: 'center'
               }}>
-                <RestaurantIcon sx={{ fontSize: '2.5rem', color: 'text.disabled', mb: 0.5 }} />
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9rem' }}>
+                <RestaurantIcon sx={{ fontSize: '1.5rem', color: 'text.disabled', mb: 0.3 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '1rem' }}>
                   Keine Speisen
                 </Typography>
               </Box>
-            )}
+            )}D
           </Box>
         </Box>
       </Box>

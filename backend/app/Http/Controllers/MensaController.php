@@ -19,13 +19,31 @@ class MensaController extends Controller
 
     /**
      * Get current and next day menu data
-     *
      * @return JsonResponse
      */
     public function index(): JsonResponse
     {
         try {
             $data = $this->mensaService->getMenuData();
+            
+            return response()->json($data, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
+
+    /**
+     * Get current and next day menu data with food images
+     * @return JsonResponse
+     */
+    public function indexWithImages(): JsonResponse
+    {
+        try {
+            $data = $this->mensaService->getMenuData(true);
             
             return response()->json($data, 200);
         } catch (Exception $e) {
