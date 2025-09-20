@@ -4,6 +4,8 @@ A modern web dashboard application designed for display in foyer environments, f
 
 ![Dashboard Preview](https://img.shields.io/badge/Status-Active-green) ![Laravel](https://img.shields.io/badge/Laravel-11.x-red) ![React](https://img.shields.io/badge/React-19.x-blue) ![PHP](https://img.shields.io/badge/PHP-8.2+-purple)
 
+https://ibb.co/6RBq7Ckt
+
 ## 🚀 Features
 
 ### 📊 Dashboard Components
