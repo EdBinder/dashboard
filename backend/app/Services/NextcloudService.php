@@ -38,11 +38,14 @@ class NextcloudService
             // Nextcloud WebDAV URL structure
             $webdavUrl = rtrim($this->baseUrl, '/') . '/remote.php/dav/files/' . $this->username . $filePath;
             
-            Log::info('Fetching file from Nextcloud', [
+            Log::info('Starting Nextcloud WebDAV Request', [
                 'url' => $webdavUrl,
-                'file_path' => $filePath
+                'file_path' => $filePath,
+                'username' => $this->username,
+                'method' => 'GET'
             ]);
 
+            $startTime = microtime(true);
             $response = $this->client->get($webdavUrl, [
                 'auth' => [$this->username, $this->password],
                 'headers' => [
@@ -50,21 +53,27 @@ class NextcloudService
                     'User-Agent' => 'Laravel-Dashboard/1.0'
                 ]
             ]);
+            $endTime = microtime(true);
 
             $content = $response->getBody()->getContents();
             
-            Log::info('Successfully fetched file from Nextcloud', [
-                'file_size' => strlen($content),
-                'file_path' => $filePath
+            Log::info('Nextcloud WebDAV Response Success', [
+                'file_size_bytes' => strlen($content),
+                'file_path' => $filePath,
+                'status_code' => $response->getStatusCode(),
+                'response_time_ms' => round(($endTime - $startTime) * 1000, 2),
+                'content_preview' => substr($content, 0, 100) . (strlen($content) > 100 ? '...' : '')
             ]);
 
             return $content;
 
         } catch (GuzzleException $e) {
-            Log::error('Failed to fetch file from Nextcloud', [
-                'error' => $e->getMessage(),
+            Log::error('Nextcloud WebDAV Request Failed', [
+                'error_message' => $e->getMessage(),
                 'file_path' => $filePath,
-                'status_code' => $e->getCode()
+                'status_code' => method_exists($e, 'getResponse') && $e->getResponse() ? $e->getResponse()->getStatusCode() : 'unknown',
+                'request_url' => $webdavUrl ?? 'unknown',
+                'exception_class' => get_class($e)
             ]);
             
             throw new \Exception('Failed to fetch file from Nextcloud: ' . $e->getMessage());
@@ -81,6 +90,12 @@ class NextcloudService
         try {
             $webdavUrl = rtrim($this->baseUrl, '/') . '/remote.php/dav/files/' . $this->username . '/';
             
+            Log::info('Testing Nextcloud Connection', [
+                'url' => $webdavUrl,
+                'username' => $this->username,
+                'method' => 'PROPFIND'
+            ]);
+            
             $response = $this->client->request('PROPFIND', $webdavUrl, [
                 'auth' => [$this->username, $this->password],
                 'headers' => [
@@ -89,12 +104,21 @@ class NextcloudService
                 ]
             ]);
 
-            return $response->getStatusCode() === 207; // WebDAV Multi-Status response
+            $isConnected = $response->getStatusCode() === 207;
+            
+            Log::info('Nextcloud Connection Test Result', [
+                'connected' => $isConnected,
+                'status_code' => $response->getStatusCode(),
+                'expected_status' => 207
+            ]);
+
+            return $isConnected; // WebDAV Multi-Status response
             
         } catch (GuzzleException $e) {
-            Log::error('Nextcloud connection test failed', [
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode()
+            Log::error('Nextcloud Connection Test Failed', [
+                'error_message' => $e->getMessage(),
+                'status_code' => method_exists($e, 'getResponse') && $e->getResponse() ? $e->getResponse()->getStatusCode() : 'unknown',
+                'exception_class' => get_class($e)
             ]);
             
             return false;

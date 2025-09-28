@@ -116,22 +116,54 @@ class GoogleImagesService
         $retries = 0;
         while ($retries < self::MAX_RETRIES) {
             try {
+                Log::info('Google Custom Search API Request', [
+                    'url' => self::GOOGLE_CUSTOM_SEARCH_API_URL,
+                    'query' => $searchQuery,
+                    'food_name' => $foodName,
+                    'attempt' => $retries + 1
+                ]);
+
                 $response = Http::withOptions([
                     'verify' => false,  // Disable SSL certificate verification for development
                     'timeout' => self::REQUEST_TIMEOUT
                 ])->get(self::GOOGLE_CUSTOM_SEARCH_API_URL, $params);
 
+                Log::info('Google Custom Search API Response', [
+                    'status_code' => $response->status(),
+                    'response_time' => $response->transferStats?->getTransferTime() ?? 'unknown',
+                    'food_name' => $foodName
+                ]);
+
                 if ($response->successful()) {
                     $data = $response->json();
-                    return $this->extractBestImage($data, $foodName);
+                    $imageResult = $this->extractBestImage($data, $foodName);
+                    
+                    Log::info('Google Image Search Result', [
+                        'food_name' => $foodName,
+                        'image_found' => !is_null($imageResult),
+                        'total_results' => $data['searchInformation']['totalResults'] ?? 0
+                    ]);
+                    
+                    return $imageResult;
                 }
 
                 if ($response->status() === 429) {
                     // Rate limit hit, wait and retry
+                    Log::warning('Google API Rate Limit Hit', [
+                        'food_name' => $foodName,
+                        'retry_attempt' => $retries + 1,
+                        'backoff_seconds' => pow(2, $retries)
+                    ]);
                     sleep(pow(2, $retries)); // Exponential backoff
                     $retries++;
                     continue;
                 }
+
+                Log::error('Google Custom Search API Error', [
+                    'status_code' => $response->status(),
+                    'response_body' => $response->body(),
+                    'food_name' => $foodName
+                ]);
 
                 throw new Exception('API request failed with status: ' . $response->status());
             } catch (Exception $e) {
@@ -147,20 +179,15 @@ class GoogleImagesService
     }
 
     /**
-     * Build an optimized search query for food images
+     * Build search query using the raw food name without manipulation
      *
      * @param string $foodName
      * @return string
      */
     private function buildSearchQuery(string $foodName): string
     {
-        // Simply use the food name as-is with just basic food context
-        $searchTerms = [
-            trim($foodName),
-            'food'
-        ];
-
-        return implode(' ', $searchTerms);
+        // Use the food name exactly as provided from the mensa API
+        return trim($foodName);
     }
 
     /**

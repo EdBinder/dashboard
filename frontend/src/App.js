@@ -16,6 +16,7 @@ import {
 import GridLayout from './components/GridLayout';
 import Antraege from './components/Antraege';
 import Mensa from './components/Mensa';
+import Tasks from './components/Tasks';
 
 // Create a simple theme with global Poppins typography
 const theme = createTheme({
@@ -37,13 +38,15 @@ const theme = createTheme({
 
 
 // Each module defines its position (x,y) and size (w,h) in grid cells.
+// Grid is 16x9 (16:9 aspect ratio for foyer displays)
 const layoutConfig = [
-  { id: 'welcome', x: 0,  y: 0, w:6, h: 4, title: '', component: (
+  // Logo and welcome - top left, smaller size
+  { id: 'welcome', x: 0, y: 0, w: 5, h:5, title: '', component: (
       <Box sx={{ 
         display: 'flex', 
         flexDirection: 'column', 
         alignItems: 'center', 
-        gap: 2,
+        gap: 1,
         height: '100%',
         justifyContent: 'center'
       }}>
@@ -101,7 +104,7 @@ const layoutConfig = [
             src="/IIIUS_logo.png" 
             alt="IIIUS Logo" 
             style={{ 
-              height: 245, 
+              height: 220, // Smaller logo to fit reduced space
               width: 'auto',
               filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))',
               transition: 'filter 0.3s ease'
@@ -109,15 +112,15 @@ const layoutConfig = [
           />
         </Box>
         <Typography 
-          variant="body1" 
+          variant="body2" 
           color="text.secondary" 
           textAlign="center"
           sx={{
             opacity: 0,
             transform: 'translateY(20px)',
             animation: 'fadeInUp 1s ease-out 0.5s forwards',
-            fontSize: '1.1rem',
-            lineHeight: 1.5,
+            fontSize: '1.0rem', // Smaller text
+            lineHeight: 1.3,
             '@keyframes fadeInUp': {
               from: {
                 opacity: 0,
@@ -150,8 +153,14 @@ const layoutConfig = [
       </Box>
     ) },
  
-  { id: 'antraege', x: 0, y:4, w: 16, h: 5, title: 'Anträge', component: <Antraege /> },
-  { id: 'mensa', x: 6, y: 0, w: 10, h: 4, title: '', component: <Mensa /> },
+  // Tasks module - top right
+  { id: 'tasks', x: 5, y: 0, w: 6, h: 5, title: '', component: <Tasks /> },
+  
+  // Mensa module - top far right
+  { id: 'mensa', x: 11, y: 0, w: 5, h: 5, title: '', component: <Mensa /> },
+  
+  // Anträge module - bottom, full width but shorter
+  { id: 'antraege', x: 0, y: 5, w: 16, h: 4, title: 'Anträge', component: <Antraege /> },
 
   
 ];

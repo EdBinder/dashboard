@@ -472,7 +472,7 @@ export default function Mensa() {
                   Keine Speisen
                 </Typography>
               </Box>
-            )}D
+            )}
           </Box>
         </Box>
       </Box>

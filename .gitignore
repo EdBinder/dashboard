@@ -29,3 +29,4 @@ Homestead.json
 .phpactor.json
 auth.json
 backend/app/Services/MensaServiceInteractive.php
+.github/copilot-instructions.md

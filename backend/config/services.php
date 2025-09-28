@@ -36,4 +36,13 @@ return [
         'custom_search_engine_id' => env('GOOGLE_CUSTOM_SEARCH_ENGINE_ID'),
     ],
 
+    'nextcloud' => [
+        'url' => env('NEXTCLOUD_URL'),
+        'username' => env('NEXTCLOUD_USERNAME'),
+        'password' => env('NEXTCLOUD_PASSWORD'),
+        'deck' => [
+            'default_boards' => env('NEXTCLOUD_DECK_DEFAULT_BOARDS'), // Comma-separated board IDs
+        ],
+    ],
+
 ];
