@@ -12,6 +12,7 @@ class NextcloudService
     private string $baseUrl;
     private string $username;
     private string $password;
+    private ?string $userId = null; // Cache the user ID
 
     public function __construct()
     {
@@ -26,6 +27,59 @@ class NextcloudService
     }
 
     /**
+     * Get the actual user ID from Nextcloud (which may differ from username)
+     * 
+     * @return string
+     * @throws \Exception
+     */
+    private function getUserId(): string
+    {
+        if ($this->userId !== null) {
+            return $this->userId; // Return cached user ID
+        }
+
+        try {
+            $ocsUrl = rtrim($this->baseUrl, '/') . '/ocs/v1.php/cloud/user?format=json';
+            
+            Log::info('Fetching Nextcloud User ID', [
+                'url' => $ocsUrl,
+                'username' => $this->username
+            ]);
+            
+            $response = $this->client->get($ocsUrl, [
+                'auth' => [$this->username, $this->password],
+                'headers' => [
+                    'OCS-APIRequest' => 'true',
+                    'Accept' => 'application/json'
+                ]
+            ]);
+            
+            $data = json_decode($response->getBody()->getContents(), true);
+            
+            if (isset($data['ocs']['data']['id'])) {
+                $this->userId = $data['ocs']['data']['id'];
+                
+                Log::info('Successfully fetched Nextcloud User ID', [
+                    'username' => $this->username,
+                    'user_id' => $this->userId
+                ]);
+                
+                return $this->userId;
+            }
+            
+            throw new \Exception('User ID not found in OCS response');
+            
+        } catch (GuzzleException $e) {
+            Log::error('Failed to fetch Nextcloud User ID', [
+                'error_message' => $e->getMessage(),
+                'username' => $this->username
+            ]);
+            
+            throw new \Exception('Failed to fetch user ID from Nextcloud: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Fetch file content from Nextcloud via WebDAV
      * 
      * @param string $filePath The path to the file in Nextcloud (e.g., '/Documents/proposals.csv')
@@ -35,8 +89,10 @@ class NextcloudService
     public function getFileContent(string $filePath): string
     {
         try {
-            // Nextcloud WebDAV URL structure
-            $webdavUrl = rtrim($this->baseUrl, '/') . '/remote.php/dav/files/' . $this->username . $filePath;
+            // Get the actual user ID (which may differ from username)
+            $userId = $this->getUserId();
+            $encodedUserId = urlencode($userId);
+            $webdavUrl = rtrim($this->baseUrl, '/') . '/remote.php/dav/files/' . $encodedUserId . $filePath;
             
             Log::info('Starting Nextcloud WebDAV Request', [
                 'url' => $webdavUrl,
@@ -88,11 +144,15 @@ class NextcloudService
     public function testConnection(): bool
     {
         try {
-            $webdavUrl = rtrim($this->baseUrl, '/') . '/remote.php/dav/files/' . $this->username . '/';
+            // Get the actual user ID and encode it for URLs
+            $userId = $this->getUserId();
+            $encodedUserId = urlencode($userId);
+            $webdavUrl = rtrim($this->baseUrl, '/') . '/remote.php/dav/files/' . $encodedUserId . '/';
             
             Log::info('Testing Nextcloud Connection', [
                 'url' => $webdavUrl,
                 'username' => $this->username,
+                'user_id' => $userId,
                 'method' => 'PROPFIND'
             ]);
             
