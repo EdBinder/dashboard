@@ -14,7 +14,7 @@ import ModuleSlot from './ModuleSlot';
  *      h: 1..9  (height in rows) must fit within 9
  *  Invalid modules (overflow) are ignored with a console.warn.
  */
-export default function GridLayout({ layout = [], gap = 8 }) {
+export default function GridLayout({ layout = [], gap = 2 }) {
   const valid = layout.filter(m => {
     const inside = m.x >= 0 && m.y >= 0 && m.w > 0 && m.h > 0 && (m.x + m.w) <= 16 && (m.y + m.h) <= 9;
     if (!inside) {
@@ -30,14 +30,15 @@ export default function GridLayout({ layout = [], gap = 8 }) {
         position: 'relative',
         display: 'grid',
         width: '98%',
-        height: '95%',
+        height: '98%',
         maxWidth: '100%',
         maxHeight: '100%',
         aspectRatio: '16 / 9',
         gridTemplateColumns: 'repeat(16, 1fr)',
         gridTemplateRows: 'repeat(9, 1fr)',
         gap: gap,
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        padding: 1
       }}
     >
       {valid.map(m => (
@@ -46,6 +47,10 @@ export default function GridLayout({ layout = [], gap = 8 }) {
           sx={{
             gridColumn: `${m.x + 1} / span ${m.w}`,
             gridRow: `${m.y + 1} / span ${m.h}`,
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              zIndex: 1
+            }
           }}
         >
           {m.component || null}

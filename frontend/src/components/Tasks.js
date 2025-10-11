@@ -28,7 +28,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import FolderIcon from '@mui/icons-material/Folder';
 
 const API_BASE_URL = 'http://localhost:8000/api';
-const REFRESH_INTERVAL = 300000; // 5 minutes
+const REFRESH_INTERVAL = 1200000; // 20 minutes
 
 export default function Tasks() {
   const theme = useTheme();
@@ -212,8 +212,8 @@ export default function Tasks() {
         height: '100%',
         gap: 2
       }}>
-        <CircularProgress />
-        <Typography variant="body2" color="text.secondary">
+        <CircularProgress sx={{ color: '#0459C9' }} />
+        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
           Lade Aufgaben...
         </Typography>
       </Box>
@@ -222,17 +222,39 @@ export default function Tasks() {
 
   if (error) {
     return (
-      <Box sx={{ p: 2, height: '100%' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TaskIcon />
+      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          mb: 2,
+          pb: 1.5,
+          borderBottom: '2px solid #e2e8f0'
+        }}>
+          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: '#0459C9' }}>
+            <TaskIcon sx={{ fontSize: '1.5rem' }} />
             Aufgaben
           </Typography>
-          <IconButton onClick={handleRefresh} disabled={loading}>
-            <RefreshIcon />
+          <IconButton 
+            onClick={handleRefresh} 
+            disabled={loading}
+            size="small"
+            sx={{ 
+              color: '#0459C9',
+              '&:hover': { bgcolor: '#9BB8D9' }
+            }}
+          >
+            <RefreshIcon fontSize="small" />
           </IconButton>
         </Box>
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mb: 2,
+            borderRadius: 2,
+            '& .MuiAlert-icon': { color: '#f56565' }
+          }}
+        >
           {error}
         </Alert>
       </Box>
@@ -244,29 +266,49 @@ export default function Tasks() {
   const completedTasks = tasks.filter(task => task.done);
 
   return (
-    <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <TaskIcon />
-          <Typography variant="h6">
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: 2,
+        pb: 1.5,
+        borderBottom: '2px solid #e2e8f0'
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <TaskIcon sx={{ color: '#0459C9', fontSize: '1.5rem' }} />
+          <Typography variant="h6" sx={{ color: '#0459C9', fontWeight: 600 }}>
             Aufgaben
           </Typography>
           <Chip 
             label={`${activeTasks.length} aktiv`} 
             size="small" 
-            color="primary"
-            variant="outlined"
+            sx={{ 
+              bgcolor: '#9BB8D9', 
+              color: '#0459C9',
+              fontWeight: 500,
+              '& .MuiChip-label': { px: 1 }
+            }}
           />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {lastUpdated && (
-            <Typography variant="caption" color="text.secondary">
-              {lastUpdated.toLocaleTimeString('de-DE')}
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+              {lastUpdated.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
             </Typography>
           )}
-          <IconButton onClick={handleRefresh} disabled={loading} size="small">
-            <RefreshIcon />
+          <IconButton 
+            onClick={handleRefresh} 
+            disabled={loading} 
+            size="small"
+            sx={{ 
+              color: '#0459C9',
+              '&:hover': { bgcolor: '#9BB8D9', transform: 'rotate(180deg)' },
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <RefreshIcon fontSize="small" />
           </IconButton>
         </Box>
       </Box>
@@ -299,23 +341,28 @@ export default function Tasks() {
                   <ListItem 
                     sx={{ 
                       px: 0,
-                      py: 1,
+                      py: 0.75,
+                      borderRadius: 2,
+                      transition: 'all 0.2s ease',
                       '&:hover': {
-                        backgroundColor: 'action.hover',
-                        borderRadius: 1
+                        backgroundColor: '#f8fafc',
+                        transform: 'translateX(4px)',
+                        boxShadow: '0 2px 8px rgba(4, 89, 201, 0.1)'
                       }
                     }}
                   >
                     <ListItemAvatar>
                       <Avatar sx={{ 
-                        bgcolor: task.done ? 'success.main' : 'grey.300',
-                        width: 32, 
-                        height: 32 
+                        bgcolor: task.done ? '#48bb78' : '#9BB8D9',
+                        width: 28, 
+                        height: 28,
+                        border: '2px solid #ffffff',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                       }}>
                         {task.done ? (
-                          <CheckCircleIcon sx={{ fontSize: 18 }} />
+                          <CheckCircleIcon sx={{ fontSize: 14, color: 'white' }} />
                         ) : (
-                          <RadioButtonUncheckedIcon sx={{ fontSize: 18 }} />
+                          <RadioButtonUncheckedIcon sx={{ fontSize: 14, color: '#0459C9' }} />
                         )}
                       </Avatar>
                     </ListItemAvatar>
@@ -338,28 +385,33 @@ export default function Tasks() {
                               size="small"
                               color={dueDateInfo.color}
                               variant="outlined"
-                              icon={<ScheduleIcon sx={{ fontSize: '0.75rem !important' }} />}
-                              sx={{ height: 20, fontSize: '0.7rem' }}
+                              icon={<ScheduleIcon sx={{ fontSize: '0.65rem !important' }} />}
+                              sx={{ 
+                                height: 18, 
+                                fontSize: '0.65rem',
+                                borderColor: dueDateInfo.color === 'error' ? '#f56565' : '#9BB8D9',
+                                color: dueDateInfo.color === 'error' ? '#f56565' : '#0459C9'
+                              }}
                             />
                           )}
                         </Box>
                       }
                       secondary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.25 }}>
                           <Chip
                             label={task.stackTitle}
                             size="small"
                             variant="outlined"
-                            icon={<FolderIcon sx={{ fontSize: '0.75rem !important' }} />}
-                            sx={{ height: 18, fontSize: '0.65rem' }}
+                            icon={<FolderIcon sx={{ fontSize: '0.65rem !important' }} />}
+                            sx={{ height: 16, fontSize: '0.6rem' }}
                           />
                           {task.assignedUsers?.length > 0 && (
                             <Chip
                               label={`${task.assignedUsers.length} Person(en)`}
                               size="small"
                               variant="outlined"
-                              icon={<PersonIcon sx={{ fontSize: '0.75rem !important' }} />}
-                              sx={{ height: 18, fontSize: '0.65rem' }}
+                              icon={<PersonIcon sx={{ fontSize: '0.65rem !important' }} />}
+                              sx={{ height: 16, fontSize: '0.6rem' }}
                             />
                           )}
                           {priorityInfo.level !== 'Normal' && (
@@ -367,7 +419,7 @@ export default function Tasks() {
                               label={priorityInfo.level}
                               size="small"
                               color={priorityInfo.color}
-                              sx={{ height: 18, fontSize: '0.65rem' }}
+                              sx={{ height: 16, fontSize: '0.6rem' }}
                             />
                           )}
                         </Box>

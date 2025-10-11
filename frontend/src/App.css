@@ -1,38 +1,97 @@
-.App {
-  text-align: center;
+/* IIIUS Dashboard Styles */
+
+/* Global styling improvements */
+* {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  overflow-x: hidden;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #9BB8D9;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0459C9;
+}
+
+/* Logo animations */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
 }
 
-.App-link {
-  color: #61dafb;
+@keyframes textPulse {
+  0%, 100% {
+    color: inherit;
+    text-shadow: none;
+  }
+  50% {
+    color: #0459C9;
+    text-shadow: 0 0 6px rgba(4, 89, 201, 0.3);
+  }
 }
 
-@keyframes App-logo-spin {
+@keyframes fadeInUp {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+/* Utility classes */
+.breathing {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.pulse-glow {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.text-pulse {
+  animation: textPulse 4s ease-in-out infinite;
+}
+
+.fade-up {
+  animation: fadeInUp 1s ease-out 0.5s forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }

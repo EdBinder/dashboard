@@ -18,21 +18,133 @@ import Antraege from './components/Antraege';
 import Mensa from './components/Mensa';
 import Tasks from './components/Tasks';
 
-// Create a simple theme with global Poppins typography
+// Create a cohesive theme with brand colors and consistent styling
 const theme = createTheme({
   palette: {
-    primary: { main: "#1976d2" },
-    background: { default: "#f5f5f5" },
+    primary: { 
+      main: "#0459C9",
+      light: "#9BB8D9",
+      dark: "#033A9E",
+      contrastText: "#ffffff"
+    },
+    secondary: {
+      main: "#9BB8D9",
+      light: "#C5D5E8",
+      dark: "#7A9BC7",
+      contrastText: "#000000"
+    },
+    background: { 
+      default: "#f8fafc",
+      paper: "#ffffff"
+    },
+    text: {
+      primary: "#1a202c",
+      secondary: "#4a5568"
+    },
+    success: {
+      main: "#48bb78",
+      light: "#68d391"
+    },
+    warning: {
+      main: "#ed8936",
+      light: "#f6ad55"
+    },
+    error: {
+      main: "#f56565",
+      light: "#fc8181"
+    }
   },
   typography: {
     fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: { fontWeight: 600 },
-    h2: { fontWeight: 600 },
-    h3: { fontWeight: 600 },
-    h4: { fontWeight: 600 },
-    h5: { fontWeight: 600 },
-    h6: { fontWeight: 600 },
+    h1: { fontWeight: 600, color: "#1a202c" },
+    h2: { fontWeight: 600, color: "#1a202c" },
+    h3: { fontWeight: 600, color: "#1a202c" },
+    h4: { fontWeight: 600, color: "#1a202c" },
+    h5: { fontWeight: 600, color: "#1a202c" },
+    h6: { fontWeight: 600, color: "#1a202c" },
+    subtitle1: { fontWeight: 500, color: "#0459C9" },
+    subtitle2: { fontWeight: 500, color: "#4a5568" },
+    body1: { fontWeight: 400, lineHeight: 1.6 },
+    body2: { fontWeight: 400, lineHeight: 1.5 },
     button: { textTransform: 'none', fontWeight: 500 },
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+          border: "1px solid #e2e8f0",
+          transition: "box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out",
+          "&:hover": {
+            boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+            transform: "translateY(-1px)"
+          }
+        }
+      }
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          boxShadow: "0 2px 4px -1px rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06)",
+          border: "1px solid #e2e8f0",
+          transition: "all 0.2s ease-in-out",
+          "&:hover": {
+            boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+            transform: "translateY(-1px)"
+          }
+        }
+      }
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          fontWeight: 500,
+          fontSize: "0.75rem"
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: 'none',
+          fontWeight: 500,
+          boxShadow: "none",
+          "&:hover": {
+            boxShadow: "0 2px 4px -1px rgb(0 0 0 / 0.1)",
+            transform: "translateY(-1px)"
+          }
+        }
+      }
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          transition: "all 0.2s ease-in-out",
+          "&:hover": {
+            backgroundColor: "#9BB8D9",
+            transform: "scale(1.05)"
+          }
+        }
+      }
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          backgroundColor: "#f7fafc",
+          fontWeight: 600,
+          color: "#0459C9",
+          borderBottom: "2px solid #e2e8f0"
+        },
+        body: {
+          fontSize: "0.875rem"
+        }
+      }
+    }
   }
 });
 
@@ -41,7 +153,7 @@ const theme = createTheme({
 // Grid is 16x9 (16:9 aspect ratio for foyer displays)
 const layoutConfig = [
   // Logo and welcome - top left, smaller size
-  { id: 'welcome', x: 0, y: 0, w: 5, h:5, title: '', component: (
+  { id: 'welcome', x: 0, y: 0, w: 5, h: 4, title: '', component: (
       <Box sx={{ 
         display: 'flex', 
         flexDirection: 'column', 
@@ -63,7 +175,7 @@ const layoutConfig = [
             transition: 'all 0.3s ease',
             '&:hover': {
               transform: 'scale(1.05)',
-              filter: 'drop-shadow(0 8px 16px rgba(25, 118, 210, 0.3))',
+              filter: 'drop-shadow(0 8px 16px rgba(4, 89, 201, 0.3))',
             },
             // Define keyframe animation for breathing (more subtle)
             '@keyframes breathe': {
@@ -83,7 +195,7 @@ const layoutConfig = [
               transform: 'translate(-50%, -50%)',
               width: '120%',
               height: '120%',
-              background: 'radial-gradient(circle, rgba(25, 118, 210, 0.1) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(4, 89, 201, 0.1) 0%, transparent 70%)',
               borderRadius: '50%',
               zIndex: -1,
               animation: 'pulse 4s ease-in-out infinite',
@@ -104,7 +216,7 @@ const layoutConfig = [
             src="/IIIUS_logo.png" 
             alt="IIIUS Logo" 
             style={{ 
-              height: 220, // Smaller logo to fit reduced space
+              height: 215,
               width: 'auto',
               filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))',
               transition: 'filter 0.3s ease'
@@ -119,7 +231,7 @@ const layoutConfig = [
             opacity: 0,
             transform: 'translateY(20px)',
             animation: 'fadeInUp 1s ease-out 0.5s forwards',
-            fontSize: '1.0rem', // Smaller text
+            fontSize: '0.95rem', 
             lineHeight: 1.3,
             '@keyframes fadeInUp': {
               from: {
@@ -142,8 +254,8 @@ const layoutConfig = [
                 textShadow: 'none',
               },
               '50%': {
-                color: '#1976d2',
-                textShadow: '0 0 6px rgba(25, 118, 210, 0.3)',
+                color: '#0459C9',
+                textShadow: '0 0 6px rgba(4, 89, 201, 0.3)',
               },
             },
           }}
@@ -153,14 +265,14 @@ const layoutConfig = [
       </Box>
     ) },
  
-  // Tasks module - top right
-  { id: 'tasks', x: 5, y: 0, w: 6, h: 5, title: '', component: <Tasks /> },
+  // Tasks module - top middle
+  { id: 'tasks', x: 5, y: 0, w: 5, h: 4, title: '', component: <Tasks /> },
   
-  // Mensa module - top far right
-  { id: 'mensa', x: 11, y: 0, w: 5, h: 5, title: '', component: <Mensa /> },
+  // Mensa module - top right
+  { id: 'mensa', x: 10, y: 0, w: 6, h: 4, title: '', component: <Mensa /> },
   
-  // Anträge module - bottom, full width but shorter
-  { id: 'antraege', x: 0, y: 5, w: 16, h: 4, title: 'Anträge', component: <Antraege /> },
+  // Anträge module - bottom, full width
+  { id: 'antraege', x: 0, y: 4, w: 16, h: 5, title: '', component: <Antraege /> },
 
   
 ];
@@ -175,18 +287,31 @@ function App() {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        p: 2, // Small padding around the entire viewport
-        boxSizing: 'border-box'
+        p: 1.5,
+        boxSizing: 'border-box',
+        background: '#9BB8D9'
       }}>
         <Box sx={{ 
           width: '100%',
           maxWidth: '100vw',
-          height: 'calc(100vh - 32px)', // Full height minus padding
+          height: 'calc(100vh - 24px)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'radial-gradient(circle at 30% 20%, rgba(4, 89, 201, 0.05) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(155, 184, 217, 0.08) 0%, transparent 50%)',
+            borderRadius: 3,
+            zIndex: 0
+          }
         }}>
-          <GridLayout layout={layoutConfig} gap={4} />
+          <GridLayout layout={layoutConfig} gap={2} />
         </Box>
       </Box>
     </ThemeProvider>
